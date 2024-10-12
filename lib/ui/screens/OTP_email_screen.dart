@@ -1,23 +1,20 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager_mobile_app/ui/screens/OTP_email_screen.dart';
-import 'package:task_manager_mobile_app/ui/screens/sing_up_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/PIN_verify_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
 
-class SingInScreen extends StatefulWidget {
-  const SingInScreen({super.key});
+class OTPEmailScreen extends StatefulWidget {
+  const OTPEmailScreen({super.key});
 
   @override
-  State<SingInScreen> createState() => _SingInScreenState();
+  State<OTPEmailScreen> createState() => _OTPEmailScreenState();
 }
 
-class _SingInScreenState extends State<SingInScreen> {
+class _OTPEmailScreenState extends State<OTPEmailScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-
-  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +26,9 @@ class _SingInScreenState extends State<SingInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildSingInForm(),
-              TextButton(
-                onPressed: _onTapOTPEmailScreen,
-                child: const Text('Forgot password?'),
-              ),
+              _buildOTPEmailForm(),
               const SizedBox(height: 44),
-              _buildSingUpSection(),
+              _buildHaveAccountSection(),
             ],
           ),
         ),
@@ -51,7 +44,7 @@ class _SingInScreenState extends State<SingInScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome\nBack!',
+            'Your Email\nAddress!',
             style: textTheme.displayMedium?.copyWith(
               fontWeight: FontWeight.w600,
               fontStyle: FontStyle.italic,
@@ -59,7 +52,7 @@ class _SingInScreenState extends State<SingInScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Hey! Good to see you again',
+            'A 6 digit verification pin will send to your email address',
             style: textTheme.bodyLarge,
           ),
         ],
@@ -67,7 +60,7 @@ class _SingInScreenState extends State<SingInScreen> {
     );
   }
 
-  Widget _buildSingInForm() {
+  Widget _buildOTPEmailForm() {
     return Form(
       key: _globalKey,
       child: Column(
@@ -94,51 +87,22 @@ class _SingInScreenState extends State<SingInScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _passwordController,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            obscureText: _obscureText,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              suffixIcon: IconButton(
-                onPressed: () {
-                  _obscureText = !_obscureText;
-                  setState(() {});
-                },
-                icon: Icon(
-                  _obscureText
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                ),
-              ),
-            ),
-            validator: (String? value) {
-              if (value?.isEmpty == true) {
-                return 'Enter valid password';
-              }
-              if (value!.length < 6) {
-                return 'Enter valid password must 6 character';
-              }
-              return null;
-            },
-          ),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: _onTapSingInScreen,
-            child: const Text('SING IN'),
+            onPressed: _onTapOTPVerifyScreen,
+            child: const Text('CONTINUE'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSingUpSection() {
+  Widget _buildHaveAccountSection() {
     return Center(
       child: RichText(
         text: TextSpan(
           style: TextStyle(color: Colors.grey[900]),
-          text: "Don't have an account? ",
+          text: "Have account? ",
           children: [
             TextSpan(
               style: const TextStyle(
@@ -146,8 +110,8 @@ class _SingInScreenState extends State<SingInScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
-              text: 'Sing Up',
-              recognizer: TapGestureRecognizer()..onTap = _onTapSingUpScreen,
+              text: 'Sing In',
+              recognizer: TapGestureRecognizer()..onTap = _onTapSingInScreen,
             ),
           ],
         ),
@@ -155,34 +119,28 @@ class _SingInScreenState extends State<SingInScreen> {
     );
   }
 
-  void _onTapSingInScreen() {
-    if (!_globalKey.currentState!.validate()) {
+  void _onTapOTPVerifyScreen() {
+    /*if (!_globalKey.currentState!.validate()) {
       return;
-    }
-  }
-
-  void _onTapOTPEmailScreen() {
+    }*/
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const OTPEmailScreen(),
+        builder: (context) => const PINVerifyScreen(),
       ),
     );
   }
 
-  void _onTapSingUpScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SingUpScreen(),
-      ),
-    );
+  void _onTapSingInScreen() {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const SingInScreen()),
+        (_) => false);
   }
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 }

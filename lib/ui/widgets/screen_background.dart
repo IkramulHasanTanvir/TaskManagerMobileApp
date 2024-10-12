@@ -28,11 +28,8 @@ class ScreenBackground extends StatelessWidget {
           child: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
-                  child: title,
-                ),
+                padding: const EdgeInsets.only(top: 24.0,left: 24.0,right: 24.0),
+                child: title,
               ),
             ),
           ),

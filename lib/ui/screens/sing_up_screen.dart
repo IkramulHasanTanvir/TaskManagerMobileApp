@@ -1,19 +1,21 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager_mobile_app/ui/screens/OTP_email_screen.dart';
-import 'package:task_manager_mobile_app/ui/screens/sing_up_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
 
-class SingInScreen extends StatefulWidget {
-  const SingInScreen({super.key});
+class SingUpScreen extends StatefulWidget {
+  const SingUpScreen({super.key});
 
   @override
-  State<SingInScreen> createState() => _SingInScreenState();
+  State<SingUpScreen> createState() => _SingUpScreenState();
 }
 
-class _SingInScreenState extends State<SingInScreen> {
+class _SingUpScreenState extends State<SingUpScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
@@ -29,13 +31,9 @@ class _SingInScreenState extends State<SingInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildSingInForm(),
-              TextButton(
-                onPressed: _onTapOTPEmailScreen,
-                child: const Text('Forgot password?'),
-              ),
-              const SizedBox(height: 44),
-              _buildSingUpSection(),
+              _buildSingUpForm(),
+              const SizedBox(height: 24),
+              _buildHaveAccountSection(),
             ],
           ),
         ),
@@ -50,8 +48,9 @@ class _SingInScreenState extends State<SingInScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 24),
           Text(
-            'Welcome\nBack!',
+            'Sing Up',
             style: textTheme.displayMedium?.copyWith(
               fontWeight: FontWeight.w600,
               fontStyle: FontStyle.italic,
@@ -59,7 +58,7 @@ class _SingInScreenState extends State<SingInScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Hey! Good to see you again',
+            "hello! let's join with us",
             style: textTheme.bodyLarge,
           ),
         ],
@@ -67,12 +66,11 @@ class _SingInScreenState extends State<SingInScreen> {
     );
   }
 
-  Widget _buildSingInForm() {
+  Widget _buildSingUpForm() {
     return Form(
       key: _globalKey,
       child: Column(
         children: [
-          const SizedBox(height: 44),
           TextFormField(
             controller: _emailController,
             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -90,6 +88,52 @@ class _SingInScreenState extends State<SingInScreen> {
               }
               if (!value.contains('.com')) {
                 return "Enter valid email '.com'";
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _firstNameController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            decoration: const InputDecoration(
+              labelText: 'First name',
+              suffixIcon: Icon(Icons.person_2_outlined),
+            ),
+            validator: (String? value) {
+              if (value?.isEmpty == true) {
+                return 'Enter valid name';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _lastNameController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            decoration: const InputDecoration(
+              labelText: 'Last name',
+              suffixIcon: Icon(Icons.person_2_outlined),
+            ),
+            validator: (String? value) {
+              if (value?.isEmpty == true) {
+                return 'Enter valid name';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _mobileController,
+            keyboardType: TextInputType.phone,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            decoration: const InputDecoration(
+              labelText: 'Mobile',
+              suffixIcon: Icon(Icons.phone),
+            ),
+            validator: (String? value) {
+              if (value?.isEmpty == true) {
+                return 'Enter valid Number';
               }
               return null;
             },
@@ -123,22 +167,22 @@ class _SingInScreenState extends State<SingInScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: _onTapSingInScreen,
-            child: const Text('SING IN'),
+            onPressed: _onTapSingUpButton,
+            child: const Text('SING UP'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSingUpSection() {
+  Widget _buildHaveAccountSection() {
     return Center(
       child: RichText(
         text: TextSpan(
           style: TextStyle(color: Colors.grey[900]),
-          text: "Don't have an account? ",
+          text: "Have account? ",
           children: [
             TextSpan(
               style: const TextStyle(
@@ -146,8 +190,8 @@ class _SingInScreenState extends State<SingInScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
-              text: 'Sing Up',
-              recognizer: TapGestureRecognizer()..onTap = _onTapSingUpScreen,
+              text: 'Sing In',
+              recognizer: TapGestureRecognizer()..onTap = _onTapSingInScreen,
             ),
           ],
         ),
@@ -155,33 +199,25 @@ class _SingInScreenState extends State<SingInScreen> {
     );
   }
 
-  void _onTapSingInScreen() {
+  void _onTapSingUpButton() {
     if (!_globalKey.currentState!.validate()) {
       return;
     }
   }
 
-  void _onTapOTPEmailScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const OTPEmailScreen(),
-      ),
-    );
-  }
-
-  void _onTapSingUpScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SingUpScreen(),
-      ),
-    );
+  void _onTapSingInScreen() {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const SingInScreen()),
+        (_) => false);
   }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _mobileController.dispose();
     _passwordController.dispose();
     super.dispose();
   }

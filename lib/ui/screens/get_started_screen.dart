@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/sing_up_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
 
@@ -19,9 +20,9 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         title: Padding(
           padding: const EdgeInsets.only(left: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 24),
               Text(
                 'Get Started',
                 style: textTheme.displayMedium?.copyWith(
@@ -43,7 +44,15 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
             children: [
               SizedBox(height: MediaQuery.sizeOf(context).height / 5),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SingUpScreen(),
+                      ),
+                          (_) => false);
+
+                },
                 child: const Text('SING UP'),
               ),
               const SizedBox(height: 16),
