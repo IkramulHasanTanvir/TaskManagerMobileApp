@@ -13,11 +13,18 @@ class TaskManagerMobileApp extends StatelessWidget {
       theme: ThemeData(
         colorSchemeSeed: AppColors.backgroundColor,
         scaffoldBackgroundColor: AppColors.foregroundColor,
-        textTheme: const TextTheme(),
+        navigationBarTheme: _buildNavigationBarThemeData(),
         inputDecorationTheme: _buildInputDecorationTheme(),
         elevatedButtonTheme: _buildElevatedButtonThemeData(),
       ),
     );
+  }
+
+  NavigationBarThemeData _buildNavigationBarThemeData() {
+    return const NavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        indicatorColor: AppColors.backgroundColor,
+      );
   }
 
   InputDecorationTheme _buildInputDecorationTheme() {

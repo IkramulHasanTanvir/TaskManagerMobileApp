@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager_mobile_app/ui/screens/OTP_email_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/main_button_nav_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_up_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
@@ -125,7 +126,7 @@ class _SingInScreenState extends State<SingInScreen> {
           ),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: _onTapSingInScreen,
+            onPressed: _onTapSingInButton,
             child: const Text('SING IN'),
           ),
         ],
@@ -155,10 +156,14 @@ class _SingInScreenState extends State<SingInScreen> {
     );
   }
 
-  void _onTapSingInScreen() {
-    if (!_globalKey.currentState!.validate()) {
+  void _onTapSingInButton() {
+    if (_globalKey.currentState!.validate()) {
       return;
     }
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),
+        (_) => false);
   }
 
   void _onTapOTPEmailScreen() {
