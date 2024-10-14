@@ -1,5 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
+import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/screens/OTP_email_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/main_button_nav_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_up_screen.dart';
@@ -19,6 +22,8 @@ class _SingInScreenState extends State<SingInScreen> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _obscureText = true;
+
+  bool _inProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +130,13 @@ class _SingInScreenState extends State<SingInScreen> {
             },
           ),
           const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: _onTapSingInButton,
-            child: const Text('SING IN'),
+          Visibility(
+            visible: !_inProgress,
+            replacement: const CircularProgressIndicator(),
+            child: ElevatedButton(
+              onPressed: _onTapSingInButton,
+              child: const Text('SING IN'),
+            ),
           ),
         ],
       ),
@@ -157,13 +166,40 @@ class _SingInScreenState extends State<SingInScreen> {
   }
 
   void _onTapSingInButton() {
-    if (_globalKey.currentState!.validate()) {
+    if (!_globalKey.currentState!.validate()) {
       return;
     }
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),
-        (_) => false);
+    _singIn();
+  }
+
+  Future<void> _singIn() async {
+    _inProgress = true;
+    setState(() {});
+
+    Map<String, dynamic> requestBody = {
+      'email': _emailController.text.trim(),
+      'password': _passwordController.text,
+    };
+
+    NetworkResponse response = await NetworkCaller.postRequest(
+      url: Urls.login,
+      body: requestBody,
+    );
+    _inProgress = false;
+
+    if (response.isSuccess) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),
+          (_) => false);
+    }else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.backgroundColor,
+          content: Text(response.errorMessage),
+        ),
+      );
+    }
   }
 
   void _onTapOTPEmailScreen() {

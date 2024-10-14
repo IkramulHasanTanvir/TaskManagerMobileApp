@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
+import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
+import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,6 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _obscureText = true;
+
+  bool _inProgress = false;
 
   final String _imageUrl = '';
 
@@ -191,9 +197,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _onTapSaveButton,
-            child: const Text('SAVE'),
+          Visibility(
+            visible: !_inProgress,
+            replacement: const CircularProgressIndicator(),
+            child: ElevatedButton(
+              onPressed: _onTapSaveButton,
+              child: const Text('SAVE'),
+            ),
           ),
         ],
       ),
@@ -204,6 +214,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!_globalKey.currentState!.validate()) {
       return;
     }
+    _updateProfile();
+  }
+
+  Future<void> _updateProfile() async {
+    _inProgress = true;
+    setState(() {});
+    Map<String, dynamic> responseBody = {
+      "email": _emailController.text.trim(),
+      "firstName": _firstNameController.text.trim(),
+      "lastName": _lastNameController.text.trim(),
+      "mobile": int.parse(_mobileController.text),
+      "password": _passwordController.text,
+    };
+    NetworkResponse response = await NetworkCaller.postRequest(
+      url: Urls.profileUpdate,
+      body: responseBody,
+      token:
+    );
+    _inProgress = false;
+    setState(() {});
+    if(response.isSuccess){
+      Navigator.pop(context);
+      _clearTextField();
+      snackBarMessage(context, 'profile updated');
+    }else{
+      snackBarMessage(context, response.errorMessage,true);
+    }
+  }
+
+  void _clearTextField(){
+    _emailController.clear();
+    _firstNameController.clear();
+    _lastNameController.clear();
+    _mobileController.clear();
+    _passwordController.clear();
   }
 
   @override
