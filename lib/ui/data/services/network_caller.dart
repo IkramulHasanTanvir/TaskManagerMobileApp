@@ -60,7 +60,7 @@ class NetworkCaller {
           return NetworkResponse(
             isSuccess: false,
             statusCode: response.statusCode,
-            errorMessage: decodeData['data'],
+            errorMessage: decodeData['data'] ?? 'Unknown error',
           );
         }
         return NetworkResponse(

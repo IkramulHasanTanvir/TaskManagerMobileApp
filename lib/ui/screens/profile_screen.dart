@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
 import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
@@ -224,12 +225,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "email": _emailController.text.trim(),
       "firstName": _firstNameController.text.trim(),
       "lastName": _lastNameController.text.trim(),
-      "mobile": int.parse(_mobileController.text),
+      "mobile": int.parse(_mobileController.text.trim()),
       "password": _passwordController.text,
     };
+     String? token = await AuthController.getAccessToken();
+
+     if(token == null || token.isEmpty){
+       snackBarMessage(context, 'Authentication token not found',true);
+       _inProgress = false;
+       setState(() {
+       });
+       return;
+     }
+
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
+      token: token,
     );
     _inProgress = false;
     setState(() {});

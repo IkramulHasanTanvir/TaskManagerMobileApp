@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
 import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
@@ -188,6 +189,8 @@ class _SingInScreenState extends State<SingInScreen> {
     _inProgress = false;
 
     if (response.isSuccess) {
+      final String token = response.responseBody['token'];
+      await AuthController.saveAccessToken(token);
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),

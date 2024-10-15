@@ -3,6 +3,8 @@ import 'package:task_manager_mobile_app/ui/screens/profile_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/widgets/app_bar_background.dart';
 
+import '../controller/auth_controller.dart';
+
 class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TMAppBar({
     super.key,
@@ -53,7 +55,8 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: TextStyle(color: Colors.black),
         ),
         trailing: IconButton(
-          onPressed: () {
+          onPressed: () async {
+            await AuthController.clearAccessToken();
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(

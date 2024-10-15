@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
 import 'package:task_manager_mobile_app/ui/screens/get_started_screen.dart';
+import 'package:task_manager_mobile_app/ui/screens/main_button_nav_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,13 +14,24 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   Future<void> _moveNextScreen() async {
     await Future.delayed(const Duration(seconds: 2));
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const GetStartedScreen(),
-      ),
-      (_) => false,
-    );
+    await AuthController.getAccessToken();
+    if(AuthController.isLoggedIn()){
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainButtonNavScreen(),
+        ),
+            (_) => false,
+      );
+    }else {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const GetStartedScreen(),
+        ),
+            (_) => false,
+      );
+    }
   }
 
   @override
