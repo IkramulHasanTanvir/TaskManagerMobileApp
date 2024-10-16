@@ -228,16 +228,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "mobile": int.parse(_mobileController.text.trim()),
       "password": _passwordController.text,
     };
-     String? token = await AuthController.getAccessToken();
-
-     if(token == null || token.isEmpty){
-       snackBarMessage(context, 'Authentication token not found',true);
-       _inProgress = false;
-       setState(() {
-       });
-       return;
-     }
-
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
