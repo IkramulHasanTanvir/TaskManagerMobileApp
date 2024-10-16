@@ -6,4 +6,6 @@ class Urls {
   static const String registration = '$_baseurl/Registration';
 
   static const String profileUpdate = '$_baseurl/ProfileUpdate';
+
+  static const String createTask = '$_baseurl/createTask';
 }

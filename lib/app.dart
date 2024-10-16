@@ -5,9 +5,12 @@ import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 class TaskManagerMobileApp extends StatelessWidget {
   const TaskManagerMobileApp({super.key});
 
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: TaskManagerMobileApp.navigatorKey,
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
       theme: ThemeData(

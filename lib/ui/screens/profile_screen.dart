@@ -241,7 +241,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
-      token: token,
     );
     _inProgress = false;
     setState(() {});
