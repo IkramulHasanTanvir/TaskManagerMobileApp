@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/task_model.dart';
 import 'package:task_manager_mobile_app/ui/widgets/neu_box.dart';
 
-class TaskCard extends StatelessWidget {
-  const TaskCard({super.key});
+class TaskCard extends StatefulWidget {
+  const TaskCard({super.key, required this.taskModel});
 
+  final TaskModel taskModel;
+
+  @override
+  State<TaskCard> createState() => _TaskCardState();
+}
+
+class _TaskCardState extends State<TaskCard> {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -16,17 +24,17 @@ class TaskCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Task title',
+              widget.taskModel.title ?? '',
               style: textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Task description',
+              widget.taskModel.description ?? '',
               style: textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Date: 12/03/2024',
+              'Date: ${widget.taskModel.createdDate}',
               style: textTheme.labelSmall,
             ),
             const SizedBox(height: 16),

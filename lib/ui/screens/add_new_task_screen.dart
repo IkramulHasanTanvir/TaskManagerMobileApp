@@ -18,51 +18,58 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _inProgress = false;
-
+  bool _shouldRefresh = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ScreenBackground(
-        title: _buildTitleSection(),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _globalKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _titleTEController,
-                    decoration: const InputDecoration(labelText: 'title'),
-                    validator: (String? value) {
-                      if (value?.trim().isEmpty == true) {
-                        return 'Enter valid title';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descriptionTEController,
-                    maxLines: 6,
-                    decoration: const InputDecoration(labelText: 'description'),
-                    validator: (String? value) {
-                      if (value?.trim().isEmpty == true) {
-                        return 'Enter a value';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  Visibility(
-                    visible: !_inProgress,
-                    replacement: const CircularProgressIndicator(),
-                    child: ElevatedButton(
-                      onPressed: _onTapAddButton,
-                      child: const Text('ADD'),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, result){
+        if(didPop) return;
+        Navigator.pop(context,_shouldRefresh);
+      },
+      child: Scaffold(
+        body: ScreenBackground(
+          title: _buildTitleSection(),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _globalKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _titleTEController,
+                      decoration: const InputDecoration(labelText: 'title'),
+                      validator: (String? value) {
+                        if (value?.trim().isEmpty == true) {
+                          return 'Enter valid title';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionTEController,
+                      maxLines: 6,
+                      decoration: const InputDecoration(labelText: 'description'),
+                      validator: (String? value) {
+                        if (value?.trim().isEmpty == true) {
+                          return 'Enter a value';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    Visibility(
+                      visible: !_inProgress,
+                      replacement: const CircularProgressIndicator(),
+                      child: ElevatedButton(
+                        onPressed: _onTapAddButton,
+                        child: const Text('ADD'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -115,7 +122,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     _inProgress = false;
     setState(() {});
     if(response.isSuccess){
-      Navigator.pop(context);
+      Navigator.pop(context, _shouldRefresh = true);
       _clearField();
       snackBarMessage(context, 'New task added');
     }else{

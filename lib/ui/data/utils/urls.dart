@@ -8,4 +8,12 @@ class Urls {
   static const String profileUpdate = '$_baseurl/ProfileUpdate';
 
   static const String createTask = '$_baseurl/createTask';
+
+  static const String newTaskList = '$_baseurl/listTaskByStatus/New';
+
+  static const String completedTaskList = '$_baseurl/listTaskByStatus/Completed';
+
+  static const String canceledTaskList = '$_baseurl/listTaskByStatus/Canceled';
+
+  static const String progressTaskList = '$_baseurl/listTaskByStatus/Progress';
 }
