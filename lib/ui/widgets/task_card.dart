@@ -73,12 +73,12 @@ class _TaskCardState extends State<TaskCard> {
     return NeuBox(
       child: Chip(
         label: Text(
-          '',
+          widget.taskModel.status ?? '',
           style: textTheme.labelSmall,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         backgroundColor: Colors.grey.shade200,
-        side: const BorderSide(color: Colors.green),
+        side:  BorderSide(color: _getStatusColor(widget.taskModel.status!),),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(104),
@@ -172,6 +172,21 @@ class _TaskCardState extends State<TaskCard> {
     }
     _inProgress = false;
     setState(() {});
+  }
+
+  Color _getStatusColor(String status){
+    switch(status){
+      case 'New':
+        return Colors.blue;
+      case 'Completed' :
+        return Colors.green;
+      case 'Canceled' :
+        return Colors.red;
+      case 'Progress' :
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
   }
 
 }
