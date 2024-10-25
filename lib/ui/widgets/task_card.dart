@@ -8,9 +8,15 @@ import 'package:task_manager_mobile_app/ui/widgets/neu_box.dart';
 import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 
 class TaskCard extends StatefulWidget {
-  const TaskCard({super.key, required this.taskModel});
+  const TaskCard({
+    super.key,
+    required this.taskModel,
+    required this.onTapDelete, required this.onTapUpdate,
+  });
 
   final TaskModel taskModel;
+  final VoidCallback onTapDelete;
+  final VoidCallback onTapUpdate;
 
   @override
   State<TaskCard> createState() => _TaskCardState();
@@ -67,7 +73,7 @@ class _TaskCardState extends State<TaskCard> {
     return NeuBox(
       child: Chip(
         label: Text(
-          'New',
+          '',
           style: textTheme.labelSmall,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,7 +108,7 @@ class _TaskCardState extends State<TaskCard> {
           ),
         ),
         IconButton(
-          onPressed: () => _deleteTask(widget.taskModel.sId!),
+          onPressed: () =>_deleteTask(widget.taskModel.sId!),
           icon: const Icon(
             (Icons.delete_outline),
             color: Colors.red,
@@ -118,9 +124,9 @@ class _TaskCardState extends State<TaskCard> {
       title: const Text('Update Task'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: ['New', 'Completed', 'Canceled', 'progress']
+        children: ['New', 'Completed', 'Canceled', 'Progress']
             .map((e) => ListTile(
-                  onTap: () {},
+                  onTap: () => _updateTask(widget.taskModel.sId!, e),
                   title: Text(e),
                 ))
             .toList(),
@@ -136,12 +142,30 @@ class _TaskCardState extends State<TaskCard> {
     );
   }
 
+  Future<void> _updateTask(String taskId, String status) async {
+    _inProgress = true;
+    setState(() {});
+    NetworkResponse response = await NetworkCaller.getRequest(
+        url: '${Urls.updateTaskStatus}/$taskId/$status');
+    if (response.isSuccess) {
+      widget.taskModel.status = status;
+      widget.onTapUpdate();
+      Navigator.pop(context);
+      snackBarMessage(context, 'Task Update successfully');
+    } else {
+      snackBarMessage(context, response.errorMessage, true);
+    }
+    _inProgress = false;
+    setState(() {});
+  }
+
   Future<void> _deleteTask(String taskId) async {
     _inProgress = true;
     setState(() {});
     NetworkResponse response =
-        await NetworkCaller.getRequest(url: '${Urls.deleteTask}/$taskId');
+    await NetworkCaller.getRequest(url: '${Urls.deleteTask}/$taskId');
     if (response.isSuccess) {
+      widget.onTapDelete();
       snackBarMessage(context, 'Task delete successfully');
     } else {
       snackBarMessage(context, response.errorMessage, true);
@@ -149,4 +173,5 @@ class _TaskCardState extends State<TaskCard> {
     _inProgress = false;
     setState(() {});
   }
+
 }

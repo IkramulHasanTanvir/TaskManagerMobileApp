@@ -4,6 +4,7 @@ import 'package:task_manager_mobile_app/ui/data/models/task_list_model.dart';
 import 'package:task_manager_mobile_app/ui/data/models/task_model.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
 import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
+import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 import 'package:task_manager_mobile_app/ui/widgets/task_card.dart';
 
 class CancelTaskScreen extends StatefulWidget {
@@ -40,6 +41,7 @@ class _CancelTaskScreenState extends State<CancelTaskScreen> {
             itemBuilder: (context, index) {
               return TaskCard(
                 taskModel: _canceledTaskList[index],
+                onTapDelete: _getCanceled, onTapUpdate: _getCanceled
               );
             },
           ),
@@ -64,4 +66,5 @@ class _CancelTaskScreenState extends State<CancelTaskScreen> {
     _inProgress = false;
     setState(() {});
   }
+
 }

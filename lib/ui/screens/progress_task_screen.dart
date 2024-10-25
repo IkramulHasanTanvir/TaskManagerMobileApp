@@ -15,7 +15,7 @@ class ProgressTaskScreen extends StatefulWidget {
 }
 
 class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
-   List<TaskModel> _progressTaskList = [];
+  List<TaskModel> _progressTaskList = [];
 
   bool _inProgress = false;
 
@@ -28,9 +28,9 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: RefreshIndicator(
-        onRefresh: ()async{
+        onRefresh: () async {
           _getCompletedTaskList();
         },
         child: Visibility(
@@ -39,7 +39,10 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
           child: ListView.builder(
             itemCount: _progressTaskList.length,
             itemBuilder: (context, index) {
-              return  TaskCard(taskModel: _progressTaskList[index],);
+              return TaskCard(
+                taskModel: _progressTaskList[index],
+                onTapDelete: _getCompletedTaskList, onTapUpdate: _getCompletedTaskList
+              );
             },
           ),
         ),
@@ -47,17 +50,16 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
     );
   }
 
-
   Future<void> _getCompletedTaskList() async {
     _progressTaskList.clear();
     _inProgress = true;
     setState(() {});
     NetworkResponse response =
-    await NetworkCaller.getRequest(url: Urls.completedTaskList);
+        await NetworkCaller.getRequest(url: Urls.progressTaskList);
 
     if (response.isSuccess) {
       final TaskListModel taskListModel =
-      TaskListModel.fromJson(response.responseBody);
+          TaskListModel.fromJson(response.responseBody);
       _progressTaskList = taskListModel.taskList ?? [];
     } else {
       snackBarMessage(context, response.errorMessage, true);
@@ -65,4 +67,5 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
     _inProgress = false;
     setState(() {});
   }
+
 }
