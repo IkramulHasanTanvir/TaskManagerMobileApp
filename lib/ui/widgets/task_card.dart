@@ -11,19 +11,26 @@ class TaskCard extends StatefulWidget {
   const TaskCard({
     super.key,
     required this.taskModel,
-    required this.onTapDelete, required this.onTapUpdate,
+    required this.onTapRefresh,
   });
 
   final TaskModel taskModel;
-  final VoidCallback onTapDelete;
-  final VoidCallback onTapUpdate;
+  final VoidCallback onTapRefresh;
 
   @override
   State<TaskCard> createState() => _TaskCardState();
 }
 
 class _TaskCardState extends State<TaskCard> {
-  bool _inProgress = false;
+  String _selectStatus = '';
+  bool _changeStatusInProgress = false;
+  bool _deleteTaskInProgress = false;
+
+  @override
+  void initState() {
+    _selectStatus = widget.taskModel.status!;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +85,9 @@ class _TaskCardState extends State<TaskCard> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         backgroundColor: Colors.grey.shade200,
-        side:  BorderSide(color: _getStatusColor(widget.taskModel.status!),),
+        side: BorderSide(
+          color: _getStatusColor(widget.taskModel.status!),
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(104),
@@ -92,27 +101,35 @@ class _TaskCardState extends State<TaskCard> {
   Widget _buildButtonBar() {
     return Wrap(
       children: [
-        IconButton(
-          onPressed: () {
-            showDialog(
-                barrierDismissible: false,
-                context: context,
-                builder: (context) {
-                  return _buildAlertDialog();
-                });
-          },
-          icon: Icon(
-            (Icons.edit_document),
-            color: Colors.blue.shade300,
-            size: 20,
+        Visibility(
+          visible: !_changeStatusInProgress,
+          replacement: const CircularProgressIndicator(),
+          child: IconButton(
+            onPressed: () {
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return _buildAlertDialog();
+                  });
+            },
+            icon: Icon(
+              (Icons.edit_document),
+              color: Colors.blue.shade300,
+              size: 20,
+            ),
           ),
         ),
-        IconButton(
-          onPressed: () =>_deleteTask(widget.taskModel.sId!),
-          icon: const Icon(
-            (Icons.delete_outline),
-            color: Colors.red,
-            size: 22,
+        Visibility(
+          visible: !_deleteTaskInProgress,
+          replacement: const CircularProgressIndicator(),
+          child: IconButton(
+            onPressed: _deleteTask,
+            icon: const Icon(
+              (Icons.delete_outline),
+              color: Colors.red,
+              size: 22,
+            ),
           ),
         ),
       ],
@@ -126,10 +143,17 @@ class _TaskCardState extends State<TaskCard> {
         mainAxisSize: MainAxisSize.min,
         children: ['New', 'Completed', 'Canceled', 'Progress']
             .map((e) => ListTile(
-                  onTap: () => _updateTask(widget.taskModel.sId!, e),
+                  onTap: () {
+                    _updateTask(e);
+                    Navigator.pop(context);
+                  },
                   title: Text(e),
-                ))
-            .toList(),
+                  selected: _selectStatus == e,
+                  trailing: _selectStatus == e
+                      ? const Icon(
+                          Icons.check,
+                          color: Colors.black,)
+                      : null,)).toList(),
       ),
       actions: [
         TextButton(
@@ -142,51 +166,48 @@ class _TaskCardState extends State<TaskCard> {
     );
   }
 
-  Future<void> _updateTask(String taskId, String status) async {
-    _inProgress = true;
+  Future<void> _updateTask(String newStatus) async {
+    _changeStatusInProgress = true;
     setState(() {});
     NetworkResponse response = await NetworkCaller.getRequest(
-        url: '${Urls.updateTaskStatus}/$taskId/$status');
+        url: Urls.updateTaskStatus(widget.taskModel.sId!, newStatus));
     if (response.isSuccess) {
-      widget.taskModel.status = status;
-      widget.onTapUpdate();
-      Navigator.pop(context);
+      widget.onTapRefresh();
       snackBarMessage(context, 'Task Update successfully');
     } else {
+      _changeStatusInProgress = false;
+      setState(() {});
       snackBarMessage(context, response.errorMessage, true);
     }
-    _inProgress = false;
-    setState(() {});
   }
 
-  Future<void> _deleteTask(String taskId) async {
-    _inProgress = true;
+  Future<void> _deleteTask() async {
+    _deleteTaskInProgress = true;
     setState(() {});
-    NetworkResponse response =
-    await NetworkCaller.getRequest(url: '${Urls.deleteTask}/$taskId');
+    NetworkResponse response = await NetworkCaller.getRequest(
+        url: Urls.deleteTask(widget.taskModel.sId!));
     if (response.isSuccess) {
-      widget.onTapDelete();
+      widget.onTapRefresh();
       snackBarMessage(context, 'Task delete successfully');
     } else {
+      _deleteTaskInProgress = false;
+      setState(() {});
       snackBarMessage(context, response.errorMessage, true);
     }
-    _inProgress = false;
-    setState(() {});
   }
 
-  Color _getStatusColor(String status){
-    switch(status){
+  Color _getStatusColor(String status) {
+    switch (status) {
       case 'New':
         return Colors.blue;
-      case 'Completed' :
+      case 'Completed':
         return Colors.green;
-      case 'Canceled' :
+      case 'Canceled':
         return Colors.red;
-      case 'Progress' :
+      case 'Progress':
         return Colors.orange;
       default:
         return Colors.grey;
     }
   }
-
 }

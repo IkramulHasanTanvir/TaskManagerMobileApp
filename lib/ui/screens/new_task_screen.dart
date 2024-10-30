@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/count.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/models/task_list_count_model.dart';
 import 'package:task_manager_mobile_app/ui/data/models/task_list_model.dart';
 import 'package:task_manager_mobile_app/ui/data/models/task_model.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
@@ -19,12 +21,22 @@ class NewTaskScreen extends StatefulWidget {
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
   List<TaskModel> _newTaskList = [];
+  List<Count> _taskCountList = [];
   bool inProgress = false;
 
   @override
   void initState() {
-    _getNewTaskList();
     super.initState();
+    _refreshData();
+  }
+
+  Future<void> _refreshData() async {
+    setState(() => inProgress = true);
+    await Future.wait([
+      _getNewTaskList(),
+      _getListCount(),
+    ]);
+    setState(() => inProgress = false);
   }
 
   @override
@@ -43,21 +55,18 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         replacement: const Center(child: CircularProgressIndicator()),
         child: RefreshIndicator(
           onRefresh: () async {
-            _getNewTaskList();
+            _refreshData();
           },
           child: Column(
             children: [
-              const SingleChildScrollView(
+              SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Row(
-                    children: [
-                      SummaryCard(count: 9, title: 'New'),
-                      SummaryCard(count: 8, title: 'Completed'),
-                      SummaryCard(count: 0, title: 'Cancel'),
-                      SummaryCard(count: 500, title: 'Progress'),
-                    ],
+                      children:[..._taskCountList.map((e){
+                        return SummaryCard(count: e.sum!, title: e.sId!);
+                })],
                   ),
                 ),
               ),
@@ -69,8 +78,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                     itemBuilder: (context, index) {
                       return TaskCard(
                         taskModel: _newTaskList[index],
-                        onTapDelete: _getNewTaskList,
-                        onTapUpdate: _getNewTaskList,
+                        onTapRefresh: _getNewTaskList,
                       );
                     },
                   ),
@@ -91,7 +99,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       ),
     );
     if (shouldRefresh == true) {
-      _getNewTaskList();
+      _refreshData();
+
     }
   }
 
@@ -106,7 +115,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
 
     if (response.isSuccess) {
       final TaskListModel taskListModel =
-          TaskListModel.fromJson(response.responseBody);
+      TaskListModel.fromJson(response.responseBody);
 
       _newTaskList = taskListModel.taskList ?? [];
     } else {
@@ -114,5 +123,22 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     }
     inProgress = false;
     setState(() {});
+  }
+
+  Future<void> _getListCount() async {
+    _taskCountList.clear();
+    inProgress = true;
+    setState(() {});
+    final NetworkResponse response = await NetworkCaller.getRequest(
+        url: Urls.taskListCount);
+    if (response.isSuccess) {
+      final TaskListCountModel taskListCountModel = TaskListCountModel.fromJson(
+          response.responseBody);
+      _taskCountList = taskListCountModel.countList ?? [];
+    } else {
+      snackBarMessage(context, response.errorMessage, true);
+      inProgress = false;
+      setState(() {});
+    }
   }
 }
