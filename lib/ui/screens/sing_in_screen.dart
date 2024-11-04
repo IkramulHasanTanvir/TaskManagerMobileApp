@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
+import 'package:task_manager_mobile_app/ui/data/models/login_model.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
 import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
@@ -187,15 +188,17 @@ class _SingInScreenState extends State<SingInScreen> {
       body: requestBody,
     );
     _inProgress = false;
-
+    setState(() {});
     if (response.isSuccess) {
-      final String token = response.responseBody['token'];
+      //UserLoginModel loginModel = UserLoginModel.fromJson(response.responseBody);
+      String token = response.responseBody['token'];
       await AuthController.saveAccessToken(token);
+      //await AuthController.saveUserData(loginModel.data!.first);
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),
           (_) => false);
-    }else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.backgroundColor,

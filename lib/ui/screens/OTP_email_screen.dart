@@ -1,9 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
+import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/screens/PIN_verify_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
+import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 
 class OTPEmailScreen extends StatefulWidget {
   const OTPEmailScreen({super.key});
@@ -15,6 +19,8 @@ class OTPEmailScreen extends StatefulWidget {
 class _OTPEmailScreenState extends State<OTPEmailScreen> {
   final TextEditingController _emailController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
+
+  bool verifyEmailInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -120,15 +126,30 @@ class _OTPEmailScreenState extends State<OTPEmailScreen> {
   }
 
   void _onTapOTPVerifyScreen() {
-    /*if (!_globalKey.currentState!.validate()) {
+    if (!_globalKey.currentState!.validate()) {
       return;
-    }*/
+    }
+    _verifyEmail();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const PINVerifyScreen(),
       ),
     );
+  }
+
+  Future<void> _verifyEmail() async {
+    verifyEmailInProgress = true;
+    setState(() {});
+    NetworkResponse response = await NetworkCaller.getRequest(
+      url: Urls.recoverVerifyEmail(_emailController.text),
+    );
+    verifyEmailInProgress = false;
+    setState(() {});
+    if(response.isSuccess){
+    }else{
+      snackBarMessage(context, response.errorMessage,true);
+    }
   }
 
   void _onTapSingInScreen() {

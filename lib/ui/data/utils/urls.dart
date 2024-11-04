@@ -20,8 +20,18 @@ class Urls {
 
   static const String taskListCount = '$_baseurl/taskStatusCount';
 
+  static const String profileDetails = '$_baseurl/ProfileDetails';
+
   static String deleteTask(String taskId) => '$_baseurl/deleteTask/$taskId';
 
   static String updateTaskStatus(String taskId, String status) =>
       '$_baseurl/updateTaskStatus/$taskId/$status';
+
+  static String recoverVerifyEmail(String email) =>
+      '$_baseurl/RecoverVerifyEmail/$email';
+
+  static String recoverVerifyOtp(String email, String otp) =>
+      '$_baseurl/RecoverVerifyOtp/$email/$otp';
+
+  static const String recoverResetPassword = '$_baseurl/RecoverResetPassword';
 }
