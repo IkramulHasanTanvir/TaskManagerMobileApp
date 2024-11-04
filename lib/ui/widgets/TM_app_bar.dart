@@ -1,35 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
-import 'package:task_manager_mobile_app/ui/data/models/user_model.dart';
-import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
-import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/screens/profile_screen.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/widgets/app_bar_background.dart';
-import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 import '../controller/auth_controller.dart';
 
-class TMAppBar extends StatefulWidget implements PreferredSizeWidget {
+class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TMAppBar({
     super.key,
   });
 
-  @override
-  State<TMAppBar> createState() => _TMAppBarState();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(104);
-}
-
-class _TMAppBarState extends State<TMAppBar> {
-
-  UserModel userModel = UserModel();
-
-  @override
-  void initState() {
-    super.initState();
-    getProfileDetails();
-  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -64,14 +43,14 @@ class _TMAppBarState extends State<TMAppBar> {
                 ),
         ),
         title: Text(
-          userModel.fullName ?? 'Hy',
+          AuthController.userData?.fullName ?? '',
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(
-          userModel.email ?? '',
+          AuthController.userData?.email ?? '',
           style: const TextStyle(color: Colors.black),
         ),
         trailing: IconButton(
@@ -93,17 +72,6 @@ class _TMAppBarState extends State<TMAppBar> {
     );
   }
 
-  Future<void> getProfileDetails() async {
-    userModel = await AuthController.getUserData() ?? UserModel();
-    NetworkResponse response =
-        await NetworkCaller.getRequest(url: Urls.profileDetails);
-    if (response.isSuccess) {
-      userModel = UserModel.fromJson(response.responseBody);
-      AuthController.saveUserData(userModel);
-      setState(() {
-      });
-    } else {
-      snackBarMessage(context, response.errorMessage, true);
-    }
-  }
+  @override
+  Size get preferredSize => const Size.fromHeight(104);
 }

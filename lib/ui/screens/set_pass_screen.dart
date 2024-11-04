@@ -1,11 +1,18 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
+import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/screens/sing_in_screen.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
+import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
 
 class SetPassScreen extends StatefulWidget {
-  const SetPassScreen({super.key});
+  const SetPassScreen({super.key, required this.email, required this.otp});
+
+  final String email;
+  final String otp;
 
   @override
   State<SetPassScreen> createState() => _SetPassScreenState();
@@ -13,10 +20,12 @@ class SetPassScreen extends StatefulWidget {
 
 class _SetPassScreenState extends State<SetPassScreen> {
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _obscureText = true;
+  bool _setPasswordInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +134,14 @@ class _SetPassScreenState extends State<SetPassScreen> {
               return null;
             },
           ),
-
           const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: _onTapConfirmButton,
-            child: const Text('CONFIRM'),
+          Visibility(
+            visible: !_setPasswordInProgress,
+            replacement: const CircularProgressIndicator(),
+            child: ElevatedButton(
+              onPressed: _onTapConfirmButton,
+              child: const Text('CONFIRM'),
+            ),
           ),
         ],
       ),
@@ -162,6 +174,7 @@ class _SetPassScreenState extends State<SetPassScreen> {
     if (!_globalKey.currentState!.validate()) {
       return;
     }
+    _setPassword();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -170,11 +183,32 @@ class _SetPassScreenState extends State<SetPassScreen> {
     );
   }
 
+  Future<void> _setPassword() async {
+    _setPasswordInProgress = true;
+    setState(() {});
+    Map<String, dynamic> requestBody = {
+      "email": widget.email,
+      "OTP": widget.otp,
+      "password": _confirmPasswordController.text
+    };
+    NetworkResponse response = await NetworkCaller.postRequest(
+      url: Urls.recoverResetPassword,
+      body: requestBody,
+    );
+    _setPasswordInProgress = false;
+    setState(() {});
+    if (response.isSuccess) {
+      snackBarMessage(context, response.responseBody['data']);
+    } else {
+      snackBarMessage(context, response.errorMessage, true);
+    }
+  }
+
   void _onTapSingInScreen() {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const SingInScreen()),
-            (_) => false);
+        (_) => false);
   }
 
   @override

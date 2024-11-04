@@ -190,10 +190,9 @@ class _SingInScreenState extends State<SingInScreen> {
     _inProgress = false;
     setState(() {});
     if (response.isSuccess) {
-      //UserLoginModel loginModel = UserLoginModel.fromJson(response.responseBody);
-      String token = response.responseBody['token'];
-      await AuthController.saveAccessToken(token);
-      //await AuthController.saveUserData(loginModel.data!.first);
+      LoginModel loginModel = LoginModel.fromJson(response.responseBody);
+      await AuthController.saveAccessToken(loginModel.token!);
+      await AuthController.saveUserData(loginModel.data!);
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MainButtonNavScreen()),

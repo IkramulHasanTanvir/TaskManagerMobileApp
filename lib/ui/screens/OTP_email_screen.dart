@@ -18,9 +18,8 @@ class OTPEmailScreen extends StatefulWidget {
 
 class _OTPEmailScreenState extends State<OTPEmailScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
-  bool verifyEmailInProgress = false;
+  bool _verifyEmailInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -67,39 +66,40 @@ class _OTPEmailScreenState extends State<OTPEmailScreen> {
   }
 
   Widget _buildOTPEmailForm() {
-    return Form(
-      key: _globalKey,
-      child: Column(
-        children: [
-          const SizedBox(height: 44),
-          TextFormField(
-            controller: _emailController,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              suffixIcon: Icon(Icons.email_outlined),
-            ),
-            validator: (String? value) {
-              if (value?.isEmpty == true) {
-                return 'Enter valid email';
-              }
-              if (!value!.contains('@')) {
-                return "Enter valid email '@'";
-              }
-              if (!value.contains('.com')) {
-                return "Enter valid email '.com'";
-              }
-              return null;
-            },
+    return Column(
+      children: [
+        const SizedBox(height: 44),
+        TextFormField(
+          controller: _emailController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(
+            labelText: 'Email',
+            suffixIcon: Icon(Icons.email_outlined),
           ),
-          const SizedBox(height: 32),
-          ElevatedButton(
+          validator: (String? value) {
+            if (value?.isEmpty == true) {
+              return 'Enter valid email';
+            }
+            if (!value!.contains('@')) {
+              return "Enter valid email '@'";
+            }
+            if (!value.contains('.com')) {
+              return "Enter valid email '.com'";
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 32),
+        Visibility(
+          visible: !_verifyEmailInProgress,
+          replacement: const CircularProgressIndicator(),
+          child: ElevatedButton(
             onPressed: _onTapOTPVerifyScreen,
             child: const Text('CONTINUE'),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -126,29 +126,31 @@ class _OTPEmailScreenState extends State<OTPEmailScreen> {
   }
 
   void _onTapOTPVerifyScreen() {
-    if (!_globalKey.currentState!.validate()) {
-      return;
+    if (_emailController.text != '') {
+      _verifyEmail();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PINVerifyScreen(
+            verifyEmail: _emailController.text.trim(),
+          ),
+        ),
+      );
     }
-    _verifyEmail();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PINVerifyScreen(),
-      ),
-    );
   }
 
   Future<void> _verifyEmail() async {
-    verifyEmailInProgress = true;
+    _verifyEmailInProgress = true;
     setState(() {});
     NetworkResponse response = await NetworkCaller.getRequest(
       url: Urls.recoverVerifyEmail(_emailController.text),
     );
-    verifyEmailInProgress = false;
+    _verifyEmailInProgress = false;
     setState(() {});
-    if(response.isSuccess){
-    }else{
-      snackBarMessage(context, response.errorMessage,true);
+    if (response.isSuccess) {
+      snackBarMessage(context, response.responseBody['data']);
+    } else {
+      snackBarMessage(context, response.errorMessage, true);
     }
   }
 

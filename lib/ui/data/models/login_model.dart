@@ -1,21 +1,29 @@
 import 'package:task_manager_mobile_app/ui/data/models/user_model.dart';
 
-class UserLoginModel {
+class LoginModel {
   String? status;
-  List<UserModel>? data;
+  UserModel? data;
+  String? token;
 
-  UserLoginModel({this.status, this.data});
+  LoginModel({this.status, this.data, this.token});
 
-  UserLoginModel.fromJson(Map<String, dynamic> json) {
+  LoginModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    if (json['data'] != null) {
-      data = <UserModel>[];
-      json['data'].forEach((v) {
-        data!.add(UserModel.fromJson(v));
-      });
+    data = json['data'] != null ? UserModel.fromJson(json['data']) : null;
+    token = json['token'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
     }
+    data['token'] = token;
+    return data;
   }
 }
+
 
 
 

@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
+import 'package:task_manager_mobile_app/ui/data/models/user_model.dart';
 import 'package:task_manager_mobile_app/ui/data/services/network_caller.dart';
 import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
@@ -25,7 +30,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool _inProgress = false;
 
-  final String _imageUrl = '';
+  XFile? _selectedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _setUseData();
+  }
+
+  void _setUseData() {
+    _emailController.text = AuthController.userData?.email ?? '';
+    _firstNameController.text = AuthController.userData?.firstName ?? '';
+    _lastNameController.text = AuthController.userData?.lastName ?? '';
+    _mobileController.text = AuthController.userData?.mobile ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,21 +82,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               backgroundColor: AppColors.foregroundColor,
               maxRadius: 56,
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: ClipOval(
-                  child: _imageUrl.isNotEmpty
-                      ? Image.network(
-                          _imageUrl,
-                          fit: BoxFit.cover,
-                        )
-                      : const Icon(
-                          Icons.person,
-                          size: 56,
-                          color: AppColors.backgroundColor,
-                        ),
-                ),
-              ),
+              backgroundImage: _selectedImage != null
+                  ? FileImage(File(_selectedImage!.path))
+                  : null,
+              child: _selectedImage == null
+                  ? const Icon(
+                      Icons.person,
+                      size: 56,
+                      color: AppColors.backgroundColor,
+                    )
+                  : null,
             ),
             TextButton(
               style: TextButton.styleFrom(
@@ -86,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 foregroundColor: Colors.white,
                 backgroundColor: AppColors.backgroundColor.withOpacity(0.9),
               ),
-              onPressed: () {},
+              onPressed: _getProfileImage,
               child: const Text('Edit'),
             ),
           ])
@@ -120,6 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
               return null;
             },
+            enabled: false,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -186,15 +200,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            validator: (String? value) {
-              if (value?.isEmpty == true) {
-                return 'Enter valid password';
-              }
-              if (value!.length < 6) {
-                return 'Enter valid password must 6 character';
-              }
-              return null;
-            },
           ),
           const SizedBox(height: 24),
           Visibility(
@@ -215,6 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     _updateProfile();
+   // Navigator.pop(context);
   }
 
   Future<void> _updateProfile() async {
@@ -224,30 +230,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
       "email": _emailController.text.trim(),
       "firstName": _firstNameController.text.trim(),
       "lastName": _lastNameController.text.trim(),
-      "mobile": int.parse(_mobileController.text.trim()),
-      "password": _passwordController.text,
+      "mobile": _mobileController.text.trim(),
     };
+    if (_passwordController.text != '') {
+      responseBody['password'] = _passwordController.text;
+    }
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
     );
     _inProgress = false;
     setState(() {});
-    if(response.isSuccess){
-      Navigator.pop(context);
-      _clearTextField();
+    if (response.isSuccess) {
+      UserModel userModel = UserModel.fromJson(responseBody);
+      await AuthController.saveUserData(userModel);
       snackBarMessage(context, 'profile updated');
-    }else{
-      snackBarMessage(context, response.errorMessage,true);
+    } else {
+      snackBarMessage(context, response.errorMessage, true);
     }
   }
-
-  void _clearTextField(){
-    _emailController.clear();
-    _firstNameController.clear();
-    _lastNameController.clear();
-    _mobileController.clear();
-    _passwordController.clear();
+  Future<void> _getProfileImage() async {
+    final ImagePicker imagePicker = ImagePicker();
+    XFile? pickedImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      _selectedImage = pickedImage;
+      setState(() {});
+    }
   }
 
   @override
