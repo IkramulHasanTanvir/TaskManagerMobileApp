@@ -66,7 +66,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                       children:[..._taskCountList.map((e){
-                        return SummaryCard(count: e.sum!, title: e.sId!);
+                        return SummaryCard(count: e.sum ?? 0, title: e.sId ?? '');
                 })],
                   ),
                 ),

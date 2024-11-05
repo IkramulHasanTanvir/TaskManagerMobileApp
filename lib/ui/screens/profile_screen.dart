@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -242,6 +243,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _inProgress = false;
     setState(() {});
     if (response.isSuccess) {
+      if(_selectedImage != null && _selectedImage is File){
+        List<int> imageBytes = await _selectedImage!.readAsBytes();
+        AuthController.saveProfileImage(Uint8List.fromList(imageBytes));
+      }
       UserModel userModel = UserModel.fromJson(responseBody);
       await AuthController.saveUserData(userModel);
       snackBarMessage(context, 'profile updated');
