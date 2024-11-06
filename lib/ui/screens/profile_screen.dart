@@ -1,6 +1,5 @@
+import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
@@ -11,6 +10,9 @@ import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
 import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
+import 'package:image/image.dart' as img; // Import the image package
+
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -236,6 +238,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_passwordController.text != '') {
       responseBody['password'] = _passwordController.text;
     }
+    if(_selectedImage != null){
+      File imageFile = File(_selectedImage!.path);
+
+      List<int> imageBytes =  await imageFile.readAsBytes();
+
+      img.Image? image = img.decodeImage(imageBytes);
+      if(image != null){
+        img.Image compressedImage = img.copyResize(image, width: 100);
+        List<int> compressedBytes = img.encodeJpg(compressedImage, quality: 40);
+        String convertedImage = base64Encode(compressedBytes);
+        responseBody['photo'] = convertedImage;
+      }
+    }
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
@@ -243,10 +258,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _inProgress = false;
     setState(() {});
     if (response.isSuccess) {
-      if(_selectedImage != null && _selectedImage is File){
-        List<int> imageBytes = await _selectedImage!.readAsBytes();
-        AuthController.saveProfileImage(Uint8List.fromList(imageBytes));
-      }
       UserModel userModel = UserModel.fromJson(responseBody);
       await AuthController.saveUserData(userModel);
       snackBarMessage(context, 'profile updated');

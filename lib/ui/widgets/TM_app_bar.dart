@@ -27,7 +27,7 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildAppBarListTile(BuildContext context) {
-    String imageUrl = AuthController.profileImage ?? '';
+    String imageUrl =  AuthController.userData!.photo;
     return Padding(
       padding: const EdgeInsets.only(left: 8, top: 24),
       child: ListTile(
