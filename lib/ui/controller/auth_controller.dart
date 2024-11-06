@@ -49,6 +49,5 @@ class AuthController {
     await sharedPreferences.remove(_accessTokenKey);
     await sharedPreferences.remove(_userDataKey);
     accessToken = null;
-    userData = null;
   }
 }

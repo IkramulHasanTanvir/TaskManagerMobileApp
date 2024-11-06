@@ -58,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              const SizedBox(height: 24,),
               _buildProfileUpdateForm(),
             ],
           ),
@@ -245,8 +246,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       img.Image? image = img.decodeImage(imageBytes);
       if(image != null){
-        img.Image compressedImage = img.copyResize(image, width: 100);
-        List<int> compressedBytes = img.encodeJpg(compressedImage, quality: 40);
+        img.Image compressedImage = img.copyResize(image, width: 400);
+        List<int> compressedBytes = img.encodeJpg(compressedImage, quality: 70);
         String convertedImage = base64Encode(compressedBytes);
         responseBody['photo'] = convertedImage;
       }

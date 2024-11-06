@@ -27,20 +27,21 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildAppBarListTile(BuildContext context) {
-    String imageUrl =  AuthController.userData!.photo;
+    String imageUrl = AuthController.userData!.photo ?? '';
     return Padding(
       padding: const EdgeInsets.only(left: 8, top: 24),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.grey[300],
           maxRadius: 32,
-          child: imageUrl.isNotEmpty
-              ? Image.network(imageUrl)
-              : const Icon(
+          backgroundColor: Colors.grey[300],
+          backgroundImage: NetworkImage(imageUrl),
+          child: imageUrl.isEmpty
+              ? const Icon(
                   Icons.person,
                   color: Colors.grey,
                   size: 32,
-                ),
+                )
+              : null,
         ),
         title: Text(
           AuthController.userData?.fullName ?? '',
