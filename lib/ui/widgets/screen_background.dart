@@ -18,7 +18,7 @@ class ScreenBackground extends StatelessWidget {
       children: [
         Container(
           width: size.width,
-          height: size.height / 3.2,
+          height: size.height * 0.3,
           decoration: const BoxDecoration(
             color: AppColors.backgroundColor,
             borderRadius: BorderRadius.only(

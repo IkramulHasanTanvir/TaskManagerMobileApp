@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:task_manager_mobile_app/ui/controller/auth_controller.dart';
 import 'package:task_manager_mobile_app/ui/data/models/network_response.dart';
@@ -10,9 +11,6 @@ import 'package:task_manager_mobile_app/ui/data/utils/urls.dart';
 import 'package:task_manager_mobile_app/ui/utils/app_colors.dart';
 import 'package:task_manager_mobile_app/ui/widgets/screen_background.dart';
 import 'package:task_manager_mobile_app/ui/widgets/snackBarMessage.dart';
-import 'package:image/image.dart' as img; // Import the image package
-
-
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -58,7 +56,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(height: 24,),
+              const SizedBox(
+                height: 24,
+              ),
               _buildProfileUpdateForm(),
             ],
           ),
@@ -224,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     _updateProfile();
-   // Navigator.pop(context);
+    // Navigator.pop(context);
   }
 
   Future<void> _updateProfile() async {
@@ -239,19 +239,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_passwordController.text != '') {
       responseBody['password'] = _passwordController.text;
     }
-    if(_selectedImage != null){
+    if (_selectedImage != null) {
       File imageFile = File(_selectedImage!.path);
 
-      List<int> imageBytes =  await imageFile.readAsBytes();
+      // Compress and resize the image
+      List<int>? compressedImageBytes = await FlutterImageCompress.compressWithFile(
+        imageFile.path,
+        minWidth: 200,  // Desired width
+        minHeight: 200, // Desired height
+        quality: 85,    // Quality from 0-100
+      );
 
-      img.Image? image = img.decodeImage(imageBytes);
-      if(image != null){
-        img.Image compressedImage = img.copyResize(image, width: 400);
-        List<int> compressedBytes = img.encodeJpg(compressedImage, quality: 70);
-        String convertedImage = base64Encode(compressedBytes);
+      if (compressedImageBytes != null) {
+        // Convert to base64
+        String convertedImage = base64Encode(compressedImageBytes);
         responseBody['photo'] = convertedImage;
       }
     }
+
+
     NetworkResponse response = await NetworkCaller.postRequest(
       url: Urls.profileUpdate,
       body: responseBody,
@@ -266,6 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       snackBarMessage(context, response.errorMessage, true);
     }
   }
+
   Future<void> _getProfileImage() async {
     final ImagePicker imagePicker = ImagePicker();
     XFile? pickedImage =
